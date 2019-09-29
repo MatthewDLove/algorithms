@@ -1,0 +1,9 @@
+# Python stuff
+.pytest_cache
+.mypy_cache
+.python-version
+__pycache__
+
+# Generated coverage reparts
+.coverage
+htmlcov
