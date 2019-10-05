@@ -1,8 +1,12 @@
 """Python implementations of common sorting algorithms."""
-from typing import List
+from random import randint
+from typing import List, Optional
+
+# Type allias for list of ints.
+IntArray = List[int]
 
 
-def insertion_sort(array: List[int]) -> List[int]:
+def insertion_sort(array: IntArray) -> IntArray:
     """Sort and return unsorted input using the insertion sort algorithm
     params:
         array: a list of integers.
@@ -28,7 +32,7 @@ def insertion_sort(array: List[int]) -> List[int]:
     return array
 
 
-def merge_sort(array: List[int]) -> List[int]:
+def merge_sort(array: IntArray) -> IntArray:
     """Sort and return unsorted input using the merge sort algorithm
     params:
         array: a list of integers.
@@ -75,7 +79,7 @@ def merge_sort(array: List[int]) -> List[int]:
     return sorted_list
 
 
-def heap_sort(array: List[int]) -> List[int]:
+def heap_sort(array: IntArray) -> IntArray:
     """Sort and return unsorted input using the heap sort algorithm
 
     params:
@@ -86,7 +90,7 @@ def heap_sort(array: List[int]) -> List[int]:
         O(nlogn): max_heapify runs n times and has a runtime of O(log(n)),
         dominating O(n) term from build_max_heap
     """
-    def _max_heapify(heap: List[int], i) -> List[int]:
+    def _max_heapify(heap: IntArray, i) -> IntArray:
         """Insert integer at index'i' into the given "heap".
         params:
             heap: an array sorted such that the left and right
@@ -112,7 +116,7 @@ def heap_sort(array: List[int]) -> List[int]:
             return _max_heapify(heap, largest)
         return heap
 
-    def _build_max_heap(array: List[int]) -> List[int]:
+    def _build_max_heap(array: IntArray) -> IntArray:
         """Sort array into a max heap.
 
         params:
@@ -143,4 +147,96 @@ def heap_sort(array: List[int]) -> List[int]:
         array[0], array[i] = array[i], array[0]
         old_array = array.copy()
         array = _max_heapify(array[:i], 0) + old_array[i:]
+    return array
+
+
+def quick_sort(
+        array: IntArray,
+        start: Optional[int] = None,
+        end: Optional[int] = None
+) -> IntArray:
+    """Sort and return unsorted input using a randomized implementation of
+    the quicksort algorithm.
+
+    params:
+        array: an unsorted list of integers.
+        start: starting index of portion to be sorted.
+        end: ending index of portion to be sorted.
+    returns:
+        mutated version of array with values in non-decreasing order.
+    runtime:
+        Worst Case:
+            Partition is unbalanced, and we have one n-1 element
+            subproblem and one 0 element subproblem (i.e. array is sorted)
+            Then, recurence is:
+                T(n) = O(1) (constant time to just return)                          if n <= 1
+                T(n) = O(large subproblemn) + O(empty subproblem) + O(partitioning) else.
+            So
+                T(n) = T(n-1) + O(n)     if n > 1
+                T(n) = O(1)              else
+             This forms an arithmatic sequence
+             T(n) = O(n) + O(n-1) + O(n-2) ... + O(1) = O(n^2)
+
+        Expected Time:
+            The running time of quicksort is the sum of
+                1. The total number of calls to partiiton and the constant amount
+                    of associated work. There will be at most n calls to partition,
+                    in the case that i increases by one each time.
+
+                2. The total number of times the inner for loop executes,
+                    equal to the number of times the comparison "if array[j] <= x:"
+                    is executed (calls this X)
+            Thus, expected runtime is O(n + E[X])
+
+            It is not difficult to calculate (with calculations too length for a docstring)
+            that with the pivot randomly chosen each time, the value of E[X] is O(nlog(n))
+
+            Thus, expected runtime is O(n + nlog(n)) = O(nlog(n))
+    """
+    def _partition(array: IntArray, start: int, end: int) -> int:
+        """Arrange array around some pivot i such that for all j:
+
+            array[i] > array[j] if i > j
+            array[i] > array[j] if i < j
+
+        Then return pivot i.
+
+        params:
+            array: an unsorted list of integers.
+            start: starting index of portion to be partitioned.
+            end: ending index of portion to be partitioned.
+        returns:
+            pivot i, as described above
+        runtime:
+            O(end-start), since have to iterate over that range
+            and perform constant time operations.
+
+        """
+        # Swap end and some random element in the array
+        # so the value of x is always random.
+        rand = randint(start, end)
+        array[rand], array[end] = array[end], array[rand]
+        x = array[end]
+        i = start - 1
+        for j in range(start, end):
+            # If jth element is less than final value
+            # increase pivot by one and swap j and pivot.
+            if array[j] <= x:
+                i += 1
+                array[i], array[j] = array[j], array[i]
+        i += 1
+        array[i], array[end] = array[end], array[i]
+        return i
+
+    # On initial call, set start and end.
+    if start is None:
+        start = 0
+    if end is None:
+        end = len(array) - 1
+
+    # Implicit base case: start not less than end, do nothing since array is singleton
+    if start < end:
+        pivot = _partition(array, start, end)
+        quick_sort(array, start, pivot - 1)
+        quick_sort(array, pivot + 1, end)
     return array
