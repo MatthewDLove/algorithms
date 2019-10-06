@@ -240,3 +240,46 @@ def quick_sort(
         quick_sort(array, start, pivot - 1)
         quick_sort(array, pivot + 1, end)
     return array
+
+
+def counting_sort(input_array: IntArray) -> IntArray:
+    """Sort and return unsorted input using the counting sort algorithm
+
+    params:
+        array: an unsorted list of integers.
+    returns:
+        a new array with integers of input sorted in non-decreasing order.
+    runtime:
+        O(n + K), where k is largest element in input minus the smallest.
+        It takes O(K) time to allocate empty array of length K to write to,
+        and O(n) time to find what the value of K is. All other operations
+        are either O(n) or O(k), so total is still O(n + k)
+    """
+    if len(input_array) == 0:
+        return []
+
+    # Need to shift array over by magnitute of
+    # smallest value if negative element present.
+    shift = abs(min(min(input_array), 0))
+    K = max(input_array) + shift
+
+    N = len(input_array)
+    # Need to acount for 0-indexing.
+    temp_array = [0 for _ in range(K + 1)]
+    output_array = [0 for _ in range(N)]
+
+    for i in range(0, N):
+        # set temp_array[i] to the number of elements of value i
+        temp_array[input_array[i] + shift] += 1
+    for j in range(1, K + 1):
+        # now set temp_array[j] to number of elements of value <= i
+        temp_array[j] += temp_array[j-1]
+    for k in range(N - 1, -1, -1):
+        # For each element in input array, place in position
+        # where there are k elements smaller than it.
+        # In case of duplicates, decriment count so next element
+        # is same value.
+        element = input_array[k]
+        output_array[temp_array[element + shift]-1] = element
+        temp_array[element + shift] -= 1
+    return output_array

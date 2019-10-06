@@ -2,10 +2,10 @@ import pytest  # type: ignore
 
 from random import randint
 
-from sorting import heap_sort, insertion_sort, merge_sort, quick_sort
+from sorting import counting_sort, heap_sort, insertion_sort, merge_sort, quick_sort
 
 
-ALGORITHMS = [heap_sort, insertion_sort, merge_sort, quick_sort]
+ALGORITHMS = [counting_sort, heap_sort, insertion_sort, merge_sort, quick_sort]
 
 
 class TestDeterministic:
@@ -15,7 +15,8 @@ class TestDeterministic:
         [
             ([], []),
             ([1, 2, 3], [1, 2, 3]),
-            ([2, 3, 1], [1, 2, 3]),
+            ([2, 3, 0, 1], [0, 1, 2, 3]),
+            ([100, 5, -16, 85, -7, 7, 1], [-16, -7, 1, 5, 7, 85, 100]),
         ]
     )
     def test_unsorted_lists(self, sorting_algo, unsorted_array, sorted_array):
